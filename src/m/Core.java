@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import frame.ServerFrame;
+import frame.WLUpdateFrame;
+import warpper.Room;
+import warpper.User;
+
 public class Core {
 	
 	public static ServerFrame serverframe;

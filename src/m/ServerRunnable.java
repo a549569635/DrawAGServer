@@ -6,6 +6,8 @@ import java.net.Socket;
 
 import javax.swing.JOptionPane;
 
+import warpper.User;
+
 public class ServerRunnable implements Runnable {
 	
 	private static ServerSocket server;
@@ -25,6 +27,10 @@ public class ServerRunnable implements Runnable {
 		try {
 			if(server!=null)
 				server.close();
+			Core.CLIENT_SOCKET.clear();
+			Core.CLIENT_USERS.clear();
+			Core.CLIENT_SOCKET.clear();
+			Core.CLIENT_NAME.clear();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -40,7 +46,7 @@ public class ServerRunnable implements Runnable {
 				ServerSocketRunnable client=new ServerSocketRunnable(soc);
 				new Thread(client).start();
 				
-				Core.serverframe.info.append("一个客户端已连接，其ip为："+soc.getRemoteSocketAddress()+"\n");
+				Core.serverframe.info.append("一个客户端已连接，其ip为："+soc.getRemoteSocketAddress().toString().replace("/","")+"\n");
 				
 				Core.CLIENT_SOCKET.put(soc.getRemoteSocketAddress().toString(), client);
 
