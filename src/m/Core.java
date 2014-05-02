@@ -2,71 +2,37 @@ package m;
 
 import java.awt.EventQueue;
 import java.io.ObjectInputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import frame.ServerFrame;
-import frame.WLUpdateFrame;
-import warpper.Room;
-import warpper.User;
+import warpper.*;
 
-public class Core {
-	
-	public static ServerFrame serverframe;
-	
-	public static HashMap<String,User> CLIENT_NAME=new HashMap<String, User>();	
+public class Core {	
 	
 	public static ServerRunnable SERVER;
 	
+	public static ServerFrame serverframe;
+	
+    //<getRemoteAddress(),User>在线客户端地址地址和用户对象
+	public static HashMap<String,User> ONLINE_USERS=new HashMap<String, User>();
+	
+	//<getRemoteAddress(),Socket>在线客户端地址和套接字对象
 	public static HashMap<String,ServerSocketRunnable> CLIENT_SOCKET=new HashMap<String, ServerSocketRunnable>();
 	
-	public static HashMap<String,Socket> CLIENTS=new HashMap<String, Socket>();
-	
+	//<getRemoteAddress(),ServerSocketRunnable>在线客户端地址和服务线程对象
+	public static HashMap<String,ServerSocketRunnable> CLIENT_RUNNABLE=new HashMap<String, ServerSocketRunnable>();
+
 	public static HashMap<String,User> NEW_USER=new HashMap<String,User>();
 	
-	//public static List<String> MSG_SERVER=new ArrayList<String>();
-
-	//public static List<String> MSG_CLIENT=new ArrayList<String>();	
+	//<Room>房间对象
+	public static ArrayList<Room> ONLINE_ROOM = new ArrayList<Room>();
 	
-	public static HashMap<String,User> CLIENT_USERS=new HashMap<String, User>();
+	//<Room.ID,ServerRoomRunnable>房间ID和房间服务线程
+	public static HashMap<Integer,ServerRoomRunnable> ROOM_RUNNABLE = new HashMap<Integer,ServerRoomRunnable>();
 	
-	public static List<User> ONLINE_USER=new ArrayList<User>();
-	
-	public  static List<Room> ONLINE_Room=new ArrayList<Room>();
-	
-	public  static List<Room> CLIENT_ONLINE_Room=new ArrayList<Room>();
-
 	public static User USER;
 	
-	public static Room ROOM=null;
-
-	//public static List<QQMsg> MSG_LIST_SERVER=new ArrayList<QQMsg>();
-
-	//public static List<QQMsg> MSG_LIST_CLIENT=new ArrayList<QQMsg>();
-
-	//public static int GAMELIFE1=0;
-	//public static int GAMELIFE2=0;
-	
-	//public static HashMap<String, VSGameData> VS_GAMEDATA=new HashMap<String, VSGameData>();
-
-	//public static VSGameData VS_DATA;
-	
-	//public static List<GameData> GAME_DATA=new ArrayList<GameData>();
-	
-	//public static GameData CLIENT_GAME_DATA;
-	
-	public static ObjectInputStream OBJIN;
-	
-	public static boolean ISSTART=true;
-	
-	public static int SCORE=0;
-	
-	public static List<String> FORBINUSER=new ArrayList<String>();
-	
-	public static List<String>  DELETEUSER=new ArrayList<String>();
-
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

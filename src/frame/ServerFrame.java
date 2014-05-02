@@ -35,8 +35,8 @@ public class ServerFrame extends JFrame {
 	private JMenuItem menuAll;
 	private JMenuItem menuExit;
 	private Thread mainServer;
-	private JMenuItem menuStart;
-	private JMenuItem menuStop;
+	public JMenuItem menuStart;
+	public JMenuItem menuStop;
 	public JTextArea info;
 	private JScrollPane scrollPane;
 	private Boolean serverRunning = false;

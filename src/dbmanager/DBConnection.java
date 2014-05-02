@@ -12,7 +12,6 @@ public class DBConnection {
 	 static String password = "665588";
 	 static String url = "jdbc:mysql://localhost:3306/DrawAGuess";
 	 static String driver = "com.mysql.jdbc.Driver";
-	 //String driver = "org.gjt.mm.mysql.Driver";
 	 static String tableName = "users";
 	 static String sqlstr;
 	 static Connection con = null;

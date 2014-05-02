@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import warpper.User;
-import dao.UserDao;
 
 public class UserManager{
 	DBConnection dbcon = new DBConnection();

@@ -28,9 +28,8 @@ public class ServerRunnable implements Runnable {
 			if(server!=null)
 				server.close();
 			Core.CLIENT_SOCKET.clear();
-			Core.CLIENT_USERS.clear();
-			Core.CLIENT_SOCKET.clear();
-			Core.CLIENT_NAME.clear();
+			Core.ONLINE_USERS.clear();
+			Core.CLIENT_RUNNABLE.clear();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -40,6 +39,8 @@ public class ServerRunnable implements Runnable {
 	@Override
 	public void run() {
 		// TODO 自动生成的方法存根
+		Core.serverframe.menuStart.setEnabled(false);
+		Core.serverframe.menuStop.setEnabled(true);
 		while(server != null){
 			try {
 				Socket soc = server.accept();
@@ -55,11 +56,16 @@ public class ServerRunnable implements Runnable {
 			} catch (IOException e) {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
+				Core.serverframe.menuStop.setEnabled(false);
+				Core.serverframe.menuStart.setEnabled(true);
 				JOptionPane.showMessageDialog(null, "服务端关闭");
 				   return;
 			}
 			
 		}
+		Core.serverframe.menuStop.setEnabled(false);
+		Core.serverframe.menuStart.setEnabled(true);
+		JOptionPane.showMessageDialog(null, "服务端关闭");
 
 	}
 
