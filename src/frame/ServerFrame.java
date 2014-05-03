@@ -6,12 +6,15 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
@@ -25,18 +28,9 @@ public class ServerFrame extends JFrame {
 
 	private JPanel contentPane;
 	private JMenuBar menuBar;
-	private JMenu menu;
-	private JMenu menuSet;
-	private JMenu menuWL;
-	private JMenuItem menuAdd;
-	private JMenuItem menuUpdate;
-	private JMenuItem menuQuery;
-	private JMenuItem menuDelete;
-	private JMenuItem menuAll;
-	private JMenuItem menuExit;
+	private JMenu menu,menuSet,menuWL;
+	public JMenuItem menuExit,menuStart,menuStop,menuAdd,menuUpdate,menuQuery,menuDelete,menuAll;
 	private Thread mainServer;
-	public JMenuItem menuStart;
-	public JMenuItem menuStop;
 	public JTextArea info;
 	private JScrollPane scrollPane;
 	private Boolean serverRunning = false;
@@ -44,15 +38,28 @@ public class ServerFrame extends JFrame {
 	private Image runningTip = Toolkit.getDefaultToolkit().getImage("src/image/runningTip.png");
 	private Image stopTip = Toolkit.getDefaultToolkit().getImage("src/image/stopTip.png");
 	private Image errorTip = Toolkit.getDefaultToolkit().getImage("src/image/errorTip.png");
+	private Object[] EXIT_TIP = {"确认退出","暂不退出"};
 
 	public ServerFrame() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setIconImage(stopTip);
 		contentPane = new JPanel();
 		contentPane.setPreferredSize(new Dimension(400,300));
 		contentPane.setOpaque(false);
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
+		final ServerFrame s = this;
+		addWindowListener(new WindowAdapter(){
+			public void windowClosing(WindowEvent e){
+				int i = JOptionPane.showOptionDialog(s, "确定退出并关闭服务器么？", "提示",JOptionPane.YES_NO_OPTION, 
+						JOptionPane.QUESTION_MESSAGE, null, EXIT_TIP, EXIT_TIP[0]);
+				if (i == JOptionPane.YES_OPTION){
+					stopServer();
+					dispose();
+					System.exit(0);
+				}
+			}
+		});
 		
 		info = new JTextArea();
 		info.setBounds(0, 0, 400, 300);
@@ -79,7 +86,13 @@ public class ServerFrame extends JFrame {
 		menuExit.setBackground(Color.WHITE);
 		menuExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				int i = JOptionPane.showOptionDialog(s, "确定退出并关闭服务器么？", "提示",JOptionPane.YES_NO_OPTION, 
+						JOptionPane.QUESTION_MESSAGE, null, EXIT_TIP, EXIT_TIP[0]);
+				if (i == JOptionPane.YES_OPTION){
+					stopServer();
+					dispose();
+					System.exit(0);
+				}
 			}
 		});
 		menu.add(menuExit);
@@ -98,7 +111,9 @@ public class ServerFrame extends JFrame {
 					mainServer.start();
 					setIconImage(runningTip);
 					serverRunning = true;
-					info.append("服务端已启动，当前服务端IP为："+InetAddress.getLocalHost().getHostAddress()+"\n");
+					info.append("服务端已启动\n");//，当前服务端IP为："+InetAddress.getLocalHost().getHostAddress()+"\n");
+					Core.serverframe.menuStart.setEnabled(false);
+					Core.serverframe.menuStop.setEnabled(true);
 				} catch (Exception e) {
 					// TODO 自动生成的 catch 块
 					e.printStackTrace();
@@ -110,15 +125,16 @@ public class ServerFrame extends JFrame {
 		menuSet.add(menuStart);
 		
 		menuStop = new JMenuItem("\u5173\u95ED\u670D\u52A1\u5668");
+		menuStop.setEnabled(false);
 		menuStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				for(ServerSocketRunnable client:Core.CLIENT_SOCKET.values()){
-					client.SendMsg(new Protocol(15,null));
-				}
+				stopServer();
 				ServerRunnable.closeServer();
 				setIconImage(stopTip);
 				serverRunning = false;
 				info.append("服务端已关闭\n");
+				Core.serverframe.menuStart.setEnabled(true);
+				Core.serverframe.menuStop.setEnabled(false);
 			}
 		});
 		menuSet.add(menuStop);
@@ -185,5 +201,11 @@ public class ServerFrame extends JFrame {
 		
 		pack();
 		setLocationRelativeTo(null);
+	}
+	
+	private void stopServer(){
+		for(ServerSocketRunnable client:Core.CLIENT_RUNNABLE.values()){
+			client.SendMsg(new Protocol(15,null));
+		}
 	}
 }

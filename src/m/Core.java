@@ -2,6 +2,8 @@ package m;
 
 import java.awt.EventQueue;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -11,14 +13,13 @@ import warpper.*;
 public class Core {	
 	
 	public static ServerRunnable SERVER;
-	
 	public static ServerFrame serverframe;
 	
     //<getRemoteAddress(),User>在线客户端地址地址和用户对象
-	public static HashMap<String,User> ONLINE_USERS=new HashMap<String, User>();
+	public static HashMap<String,User> ONLINE_USER=new HashMap<String, User>();
 	
 	//<getRemoteAddress(),Socket>在线客户端地址和套接字对象
-	public static HashMap<String,ServerSocketRunnable> CLIENT_SOCKET=new HashMap<String, ServerSocketRunnable>();
+	public static HashMap<String,Socket> CLIENT_SOCKET=new HashMap<String, Socket>();
 	
 	//<getRemoteAddress(),ServerSocketRunnable>在线客户端地址和服务线程对象
 	public static HashMap<String,ServerSocketRunnable> CLIENT_RUNNABLE=new HashMap<String, ServerSocketRunnable>();

@@ -3,6 +3,10 @@ package warpper;
 import java.io.Serializable;
 
 public class Protocol implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6228201989769940782L;
 	private int pro;
 	private Object obj;
 	

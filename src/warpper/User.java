@@ -4,6 +4,10 @@ import java.awt.Image;
 import java.io.Serializable;
 
 public class User implements Serializable, Cloneable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3341771852553751597L;
 	private String HPPath = null;
 	private String Nickname = null;
 	private String ID = null;
@@ -14,6 +18,7 @@ public class User implements Serializable, Cloneable {
 	private String Address;
 	private String IP;
 	private int Port;
+	private Image HP;
 
 	public User(String ID,String Password){
 		this.setID(ID);
@@ -46,13 +51,13 @@ public class User implements Serializable, Cloneable {
 		this.Exp = Exp;
 	}
 	
-	public User(String ID,String Password,String Nickname,String Email,int Level,int Exp,String HPPath){
+	public User(String ID,String Nickname,String Email,int Level,int Exp,String HPPath){
 		this.setID(ID);
 		this.setPassword(Password);
 		this.setNickname(Nickname);
 		this.Level = Level;
 		this.Exp = Exp;
-		this.HPPath = HPPath;
+		this.setHPPath(HPPath);
 	}
 
 	public User() {
@@ -133,6 +138,22 @@ public class User implements Serializable, Cloneable {
 
 	public void setPort(int port) {
 		Port = port;
+	}
+
+	public String getHPPath() {
+		return HPPath;
+	}
+
+	public void setHPPath(String hPPath) {
+		HPPath = hPPath;
+	}
+
+	public Image getHP() {
+		return HP;
+	}
+
+	public void setHP(Image hP) {
+		HP = hP;
 	}
 
 	@Override

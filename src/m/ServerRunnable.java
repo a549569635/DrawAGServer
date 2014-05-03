@@ -1,6 +1,7 @@
 package m;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,6 +17,7 @@ public class ServerRunnable implements Runnable {
 		// TODO 自动生成的构造函数存根
 		try {
 			server=new ServerSocket(port);
+			//Core.serverframe.info.append("服务端已启动，当前服务端IP为："+server.getLocalSocketAddress()+"\n");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -28,7 +30,7 @@ public class ServerRunnable implements Runnable {
 			if(server!=null)
 				server.close();
 			Core.CLIENT_SOCKET.clear();
-			Core.ONLINE_USERS.clear();
+			Core.ONLINE_USER.clear();
 			Core.CLIENT_RUNNABLE.clear();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -39,8 +41,6 @@ public class ServerRunnable implements Runnable {
 	@Override
 	public void run() {
 		// TODO 自动生成的方法存根
-		Core.serverframe.menuStart.setEnabled(false);
-		Core.serverframe.menuStop.setEnabled(true);
 		while(server != null){
 			try {
 				Socket soc = server.accept();
@@ -49,7 +49,7 @@ public class ServerRunnable implements Runnable {
 				
 				Core.serverframe.info.append("一个客户端已连接，其ip为："+soc.getRemoteSocketAddress().toString().replace("/","")+"\n");
 				
-				Core.CLIENT_SOCKET.put(soc.getRemoteSocketAddress().toString(), client);
+				Core.CLIENT_RUNNABLE.put(soc.getRemoteSocketAddress().toString(), client);
 
 				User user=new User();
 				Core.NEW_USER.put(soc.getRemoteSocketAddress().toString(), user);
