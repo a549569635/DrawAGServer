@@ -3,6 +3,10 @@ package warpper;
 import java.io.Serializable;
 
 public class Word implements Serializable, Cloneable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2342329780839856393L;
 	private int ID;
 	private String Value;
 	private int Length;

@@ -51,8 +51,8 @@ public class ServerRunnable implements Runnable {
 				
 				Core.CLIENT_RUNNABLE.put(soc.getRemoteSocketAddress().toString(), client);
 
-				User user=new User();
-				Core.NEW_USER.put(soc.getRemoteSocketAddress().toString(), user);
+				//User user=new User();
+				//Core.NEW_USER.put(soc.getRemoteSocketAddress().toString(), user);
 			} catch (IOException e) {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();

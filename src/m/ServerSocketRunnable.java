@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import warpper.*;
 import dbmanager.*;
 
@@ -15,47 +17,47 @@ public class ServerSocketRunnable implements Runnable {
 	private ObjectOutputStream objOut;
 	private ObjectInputStream objIn;
 	private User user=null;
-	private String num=null;
+	private int roomID = 0;
 	private UserManager uman;
 	private Boolean running = false;
 	
 	public ServerSocketRunnable(Socket soc){
-		this.soc=soc;
+		this.soc = soc;
 	}
 
 	@Override
 	public void run() {
 		// TODO 自动生成的方法存根
 		try {
-System.out.println("13");
+//System.out.println("13");
 			objOut = new ObjectOutputStream(soc.getOutputStream());
-System.out.println("456");
+//System.out.println("456");
 			objIn = new ObjectInputStream(new BufferedInputStream(soc.getInputStream()));
 			//Core.OBJIN=objIn;
 			running = true;
-System.out.println("huwudanxianchenchuanjianchengong");
+//System.out.println("huwudanxianchenchuanjianchengong");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			running = false;
 		}
 		
-		while(true){
+		while(running){
 			try {
-				Protocol data=(Protocol)objIn.readObject();
-System.out.println("登录数据已收到");
-				if(data.getPro()==1){
-					uman=new UserManager();
-					user=(User)data.getObj();
-					user=uman.query(user.getID(),user.getPassword());
-					if(user!=null){
-						boolean b=true;
+				Protocol data = (Protocol)objIn.readObject();
+//System.out.println("登录数据已收到");
+				if(data.getPro() == 1){
+					uman = new UserManager();
+					user = (User)data.getObj();
+					user = uman.query(user.getID(),user.getPassword());
+					if(user != null){
+						boolean b = true;
 						try {
 							for(User us:Core.ONLINE_USER.values()){
 								if(user.getID().equals(us.getID())){
 									objOut.writeObject(new Protocol(25,null));
 									//objOut.flush();
-									b=false;
+									b = false;
 									break;
 								}
 							}
@@ -68,12 +70,9 @@ System.out.println("登录数据已收到");
 							objOut.writeObject(new Protocol(1,user));	
 							//objOut.flush();
 							Core.ONLINE_USER.put(soc.getRemoteSocketAddress().toString(), user);
-							SendMsg(new Protocol(5, new ArrayList<Room>(Core.ONLINE_ROOM)));
-							
-							Protocol data1=new Protocol(3, new ArrayList<User>(Core.ONLINE_USER.values()));
-		         			for(ServerSocketRunnable client:Core.CLIENT_RUNNABLE.values()){
-		         				client.SendMsg(data1);
-		         			}
+							Thread.sleep(500);
+							SendMsg(new Protocol(4, Core.ONLINE_ROOM));
+							updateUsers();
 						}					
 
 					} else{						
@@ -86,7 +85,7 @@ System.out.println("登录数据已收到");
 							e.printStackTrace();
 						}
 					}
-				} else if(data.getPro()==2){
+				} else if(data.getPro() == 2){
 					uman=new UserManager();
 					user=(User)data.getObj();
 //System.out.println(user.getNickname());
@@ -99,17 +98,94 @@ System.out.println("登录数据已收到");
 						//objOut.flush();
 					}
 
+				} else if(data.getPro() == 3){
+					user = (User) data.getObj();
+					Core.ONLINE_USER.put(user.getAddress(), user);
+					Room room = Core.ONLINE_ROOM.get(roomID);
+					for(User use : room.getUser()){
+						if(use.getID().equals(user.getID())){
+							use.setReadyed(user.getReadyed());
+						}
+					}
+					Core.ONLINE_ROOM.put(roomID, room);
+					//for(int i=0;i<4;i++){
+						//if(Core.ONLINE_ROOM.get(roomID).getUser().get(i).getID().equals(user.getID())){
+							//Core.ONLINE_ROOM.get(roomID).getUser().set(i, user);
+							//break;
+						//}
+					//}
+System.out.println(Core.ONLINE_ROOM.get(roomID).getUser().get(0).getReadyed());
+					//Core.ONLINE_ROOM.put(roomID, room);
+					//Core.ROOM_RUNNABLE.get(roomID).updateRoom();
+					updateUsers();
+					updateRooms();
+				} else if(data.getPro() == 5){
+					Room room = Core.ONLINE_ROOM.get(((Room) data.getObj()).getID());
+					if(room.getState() == Room.STATE_ACCESS){
+						room.addUser(user);
+						roomID = room.getID();
+						Core.ONLINE_ROOM.put(roomID, room);
+						SendMsg(new Protocol(6,room));
+						updateRooms();
+					} else{
+						updateRooms();
+						SendMsg(new Protocol(22,null));
+					}
+				} else if(data.getPro() == 6){
+					if(Core.ROOM_COUNT < 799){
+						Room room = (Room) data.getObj();
+						room.setID(Core.ROOM_COUNT);
+						Core.ROOM_COUNT++;
+						Core.ONLINE_ROOM.put(room.getID(), room);
+						ServerRoomRunnable srr = new ServerRoomRunnable(room);
+						new Thread(srr).start();
+						Core.ROOM_RUNNABLE.put(room.getID(), srr);
+						updateRooms();
+						SendMsg(new Protocol(6,room));
+						roomID = room.getID();
+					}else{
+						SendMsg(new Protocol(23,null));
+						JOptionPane.showMessageDialog(null, "累计房间数已达上限，请重新启动服务器！");
+					}
+				} else if(data.getPro() == 7){
+					try {
+						Message msg = (Message) data.getObj();
+						if(msg.to.equals("\u6240\u6709\u4EBA")){
+							for(ServerSocketRunnable client:Core.CLIENT_RUNNABLE.values()){
+								client.SendMsg(data);
+							}
+						} else{
+							for(User use : Core.ONLINE_USER.values()){
+								if(use.getID().equals(msg.to)){
+									Core.CLIENT_RUNNABLE.get(use.getAddress()).SendMsg(data);
+								}
+							}
+							SendMsg(data);
+						}
+					} catch (NullPointerException e) {
+						// TODO 自动生成的 catch 块
+						e.printStackTrace();
+						SendMsg(new Protocol(24,null));
+					}
+				} else if(data.getPro() == 22){
+					Core.ONLINE_ROOM.get(roomID).removeUser(user);
+					user.setReadyed(false);
+					Core.ONLINE_USER.put(user.getAddress(), user);
+					roomID = 0;
+					updateUsers();
+					updateRooms();
+				} else if(data.getPro() == 23){
+					
 				}
 			} catch (Exception e) {
 				running = false;
 				Core.CLIENT_SOCKET.remove(soc.getRemoteSocketAddress().toString());
 				Core.CLIENT_RUNNABLE.remove(soc.getRemoteSocketAddress().toString());
 				Core.ONLINE_USER.remove(soc.getRemoteSocketAddress().toString());
-				
-				Protocol data1=new Protocol(3, new ArrayList<User>(Core.ONLINE_USER.values()));
-     			for(ServerSocketRunnable client:Core.CLIENT_RUNNABLE.values()){
-     				client.SendMsg(data1);
-     			}
+				if(roomID != 0){
+					Core.ONLINE_ROOM.get(roomID).removeUser(user);
+				}
+				updateUsers();
 				e.printStackTrace();
 				Core.serverframe.info.append("一个客户端已断开连接，其ip为："+soc.getRemoteSocketAddress().toString().replace("/","")+"\n");
 				break;
@@ -124,6 +200,22 @@ System.out.println("登录数据已收到");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	public void updateUsers(){
+System.out.println("updateUsers");
+		Protocol data = new Protocol(3, new ArrayList<User>(Core.ONLINE_USER.values()));
+		for(ServerSocketRunnable client:Core.CLIENT_RUNNABLE.values()){
+			client.SendMsg(data);
+		}
+	}
+	
+	public void updateRooms(){
+System.out.println("updateRooms");
+		Protocol data = new Protocol(4, Core.ONLINE_ROOM);
+		for(ServerSocketRunnable client:Core.CLIENT_RUNNABLE.values()){
+			client.SendMsg(data);
 		}
 	}
 

@@ -7,7 +7,7 @@ public class User implements Serializable, Cloneable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3341771852553751597L;
+	private static final long serialVersionUID = 6194741747432974942L;
 	private String HPPath = null;
 	private String Nickname = null;
 	private String ID = null;
@@ -19,6 +19,8 @@ public class User implements Serializable, Cloneable {
 	private String IP;
 	private int Port;
 	private Image HP;
+	private Boolean readyed = false;
+	private int score = 0;
 
 	public User(String ID,String Password){
 		this.setID(ID);
@@ -154,6 +156,22 @@ public class User implements Serializable, Cloneable {
 
 	public void setHP(Image hP) {
 		HP = hP;
+	}
+
+	public Boolean getReadyed() {
+		return readyed;
+	}
+
+	public void setReadyed(Boolean readyed) {
+		this.readyed = readyed;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
 	}
 
 	@Override
